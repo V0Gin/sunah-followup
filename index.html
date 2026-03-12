@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>متابعة يومية — سُنّة</title>
+  <meta name="description" content="تطبيق متابعة العبادات اليومية — صلاة، أذكار، قرآن" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ─── Header ─── -->
+  <header class="header">
+    <div class="header__top">
+      <h1 class="header__title">سُنَّة</h1>
+      <div class="header__actions">
+        <button class="btn btn--primary" id="btn-new-day">
+          <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          يوم جديد
+        </button>
+        <button class="btn btn--icon" id="btn-gender" aria-label="تبديل الجنس">
+          <!-- Male icon -->
+          <svg class="icon icon--male" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="14" r="5"/>
+            <line x1="19" y1="5" x2="13.6" y2="10.4"/>
+            <line x1="19" y1="5" x2="15" y2="5"/>
+            <line x1="19" y1="5" x2="19" y2="9"/>
+          </svg>
+          <!-- Female icon -->
+          <svg class="icon icon--female" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="9" r="5"/>
+            <line x1="12" y1="14" x2="12" y2="22"/>
+            <line x1="9" y1="18" x2="15" y2="18"/>
+          </svg>
+        </button>
+        <button class="btn btn--icon" id="btn-theme" aria-label="تبديل الوضع">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg class="icon icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg class="icon icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist">
+      <button class="tab tab--active" role="tab" aria-selected="true" data-tab="home">الرئيسية</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="stats">الإحصائيات</button>
+      <span class="tabs__indicator"></span>
+    </nav>
+  </header>
+
+  <!-- ─── Main Content ─── -->
+  <main class="main">
+
+    <!-- Home Tab -->
+    <section class="tab-panel tab-panel--active" id="panel-home" role="tabpanel">
+
+      <!-- Last Third of Night Hadith Banner -->
+      <div class="last-third-banner" id="last-third-banner">
+        <div class="last-third-banner__icon">🌙</div>
+        <p class="last-third-banner__text">يقول ﷺ : يَنْزِلُ رَبُّنا تَبارَكَ وتَعالَى كُلَّ لَيْلةٍ إلى السَّماءِ الدُّنْيا حِينَ يَبْقَى ثُلُثُ اللَّيْلِ الآخِرُ، يقولُ: مَن يَدْعُونِي، فأسْتَجِيبَ له؟ مَن يَسْأَلُنِي فأُعْطِيَهُ؟ مَن يَستَغْفِرُني فأغْفِرَ له؟</p>
+      </div>
+
+      <!-- Hijri Dashboard -->
+      <div class="hijri-dashboard" id="hijri-dashboard">
+        <div class="hijri-dashboard__day" id="hijri-day-name"></div>
+        <div class="hijri-dashboard__dates">
+          <span class="hijri-dashboard__gregorian" id="hijri-gregorian"></span>
+          <span class="hijri-dashboard__separator">•</span>
+          <span class="hijri-dashboard__hijri" id="hijri-hijri"></span>
+        </div>
+        <div class="hijri-dashboard__message" id="hijri-message"></div>
+
+        <!-- Collapsible Prayer Times -->
+        <div class="prayer-times-section" id="prayer-times-section">
+          <button class="prayer-times-toggle" id="toggle-prayer-times" type="button">
+            <svg class="prayer-times-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            <h3 class="prayer-times-toggle__title">مواقيت الصلاة</h3>
+            <svg class="prayer-times-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="prayer-times-body" id="prayer-times-body">
+            <div class="prayer-times-region">
+              <label class="prayer-times-region__label" for="region-select">المنطقة</label>
+              <select class="prayer-times-region__select" id="region-select">
+                <option value="Riyadh">الرياض</option>
+                <option value="Mecca">مكة المكرمة</option>
+                <option value="Medina">المدينة المنورة</option>
+                <option value="Buraydah">القصيم</option>
+                <option value="Dammam">الشرقية</option>
+                <option value="Abha">عسير</option>
+                <option value="Tabuk">تبوك</option>
+                <option value="Hail">حائل</option>
+                <option value="Najran">نجران</option>
+                <option value="Jizan">جازان</option>
+                <option value="Al Bahah">الباحة</option>
+                <option value="Sakakah">الجوف</option>
+                <option value="Arar">الحدود الشمالية</option>
+              </select>
+            </div>
+            <div class="prayer-times-grid" id="prayer-times-grid">
+              <div class="prayer-time-row" data-prayer-time="Fajr">
+                <span class="prayer-time-row__name">الفجر</span>
+                <span class="prayer-time-row__value" id="pt-fajr">--:--</span>
+              </div>
+              <div class="prayer-time-row" data-prayer-time="Sunrise">
+                <span class="prayer-time-row__name">الشروق</span>
+                <span class="prayer-time-row__value" id="pt-sunrise">--:--</span>
+              </div>
+              <div class="prayer-time-row" data-prayer-time="Dhuhr">
+                <span class="prayer-time-row__name">الظهر</span>
+                <span class="prayer-time-row__value" id="pt-dhuhr">--:--</span>
+              </div>
+              <div class="prayer-time-row" data-prayer-time="Asr">
+                <span class="prayer-time-row__name">العصر</span>
+                <span class="prayer-time-row__value" id="pt-asr">--:--</span>
+              </div>
+              <div class="prayer-time-row" data-prayer-time="Maghrib">
+                <span class="prayer-time-row__name">المغرب</span>
+                <span class="prayer-time-row__value" id="pt-maghrib">--:--</span>
+              </div>
+              <div class="prayer-time-row" data-prayer-time="Isha">
+                <span class="prayer-time-row__name">العشاء</span>
+                <span class="prayer-time-row__value" id="pt-isha">--:--</span>
+              </div>
+              <div class="prayer-time-row prayer-time-row--calc" data-prayer-time="Midnight">
+                <span class="prayer-time-row__name">منتصف الليل</span>
+                <span class="prayer-time-row__value" id="pt-midnight">--:--</span>
+              </div>
+              <div class="prayer-time-row prayer-time-row--calc" data-prayer-time="LastThird">
+                <span class="prayer-time-row__name">الثلث الأخير من الليل</span>
+                <span class="prayer-time-row__value" id="pt-last-third">--:--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charity Reminder -->
+      <div class="charity-card">
+        <p class="charity-card__text">يقول ﷺ : ما مِن يَومٍ يُصْبِحُ العِبادُ فِيهِ، إلَّا مَلَكانِ يَنْزِلانِ، فيَقولُ أحَدُهُما: اللَّهُمَّ أعْطِ مُنْفِقًا خَلَفًا، ويقولُ الآخَرُ: اللَّهُمَّ أعْطِ مُمْسِكًا تَلَفًا.</p>
+        <a href="https://ehsan.sa" target="_blank" rel="noopener noreferrer" class="charity-card__btn">
+          <span>جُد بإحسانك</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <!-- Section: الصلاة -->
+      <article class="card" id="section-salah">
+        <div class="card__header">
+          <div class="card__icon-wrap card__icon-wrap--salah">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">الصلاة</h2>
+            <p class="card__subtitle">الصلوات الخمس والنوافل</p>
+          </div>
+          <span class="card__badge" id="fard-badge">0 / 5</span>
+        </div>
+        <div class="card__body">
+
+          <!-- ── الفرائض ── -->
+          <div class="prayer-group">
+            <h3 class="prayer-group__title">الفرائض</h3>
+            <div class="prayer-list" id="fard-list">
+              <label class="prayer-item prayer-item--excuse" id="excuse-item" style="display:none;">
+                <input type="checkbox" class="prayer-check" id="excuse-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">عذر شرعي</span>
+              </label>
+              <label class="prayer-item" data-prayer="fajr">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">الفجر</span>
+              </label>
+              <label class="prayer-item" data-prayer="dhuhr">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">الظهر</span>
+              </label>
+              <label class="prayer-item" data-prayer="asr">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">العصر</span>
+              </label>
+              <label class="prayer-item" data-prayer="maghrib">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">المغرب</span>
+              </label>
+              <label class="prayer-item" data-prayer="isha">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">العشاء</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ── السنن الراتبة ── -->
+          <div class="prayer-group">
+            <div class="prayer-group__header">
+              <h3 class="prayer-group__title">السنن الراتبة</h3>
+              <span class="prayer-group__badge" id="sunnah-badge">0 / 12 ركعة</span>
+            </div>
+            <div class="prayer-list" id="sunnah-list">
+              <label class="prayer-item" data-sunnah="before_fajr" data-rakaa="2">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">٢ ركعة قبل الفجر</span>
+                <span class="prayer-rakaa-tag">٢ ركعة</span>
+              </label>
+              <label class="prayer-item" data-sunnah="before_dhuhr" data-rakaa="4">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">٤ ركعات قبل الظهر</span>
+                <span class="prayer-rakaa-tag">٤ ركعات</span>
+              </label>
+              <label class="prayer-item" data-sunnah="after_dhuhr" data-rakaa="2">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">٢ ركعة بعد الظهر</span>
+                <span class="prayer-rakaa-tag">٢ ركعة</span>
+              </label>
+              <label class="prayer-item" data-sunnah="after_maghrib" data-rakaa="2">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">٢ ركعة بعد المغرب</span>
+                <span class="prayer-rakaa-tag">٢ ركعة</span>
+              </label>
+              <label class="prayer-item" data-sunnah="after_isha" data-rakaa="2">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">٢ ركعة بعد العشاء</span>
+                <span class="prayer-rakaa-tag">٢ ركعة</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ── نوافل ثابتة ── -->
+          <div class="prayer-group">
+            <h3 class="prayer-group__title">نوافل</h3>
+            <div class="prayer-list" id="nafl-list">
+              <!-- صلاة الضحى -->
+              <div class="prayer-item prayer-item--input" data-nafl="duha">
+                <div class="prayer-item__right">
+                  <input type="checkbox" class="prayer-check" id="duha-done" />
+                  <span class="prayer-check-box"></span>
+                  <span class="prayer-icon-sm prayer-icon-sm--duha">☀</span>
+                  <span class="prayer-name">صلاة الضحى</span>
+                </div>
+                <div class="rakaa-input-wrap">
+                  <button class="rakaa-btn rakaa-btn--minus" data-target="duha" aria-label="إنقاص">−</button>
+                  <input type="number" class="rakaa-input" id="duha-input" value="2" min="2" step="2" />
+                  <button class="rakaa-btn rakaa-btn--plus" data-target="duha" aria-label="زيادة">+</button>
+                  <span class="rakaa-label">ركعة</span>
+                </div>
+              </div>
+              <!-- قيام الليل -->
+              <div class="prayer-item prayer-item--input" data-nafl="qiyam">
+                <div class="prayer-item__right">
+                  <input type="checkbox" class="prayer-check" id="qiyam-done" />
+                  <span class="prayer-check-box"></span>
+                  <span class="prayer-icon-sm prayer-icon-sm--qiyam">🌙</span>
+                  <span class="prayer-name">قيام الليل</span>
+                </div>
+                <div class="rakaa-input-wrap">
+                  <button class="rakaa-btn rakaa-btn--minus" data-target="qiyam" aria-label="إنقاص">−</button>
+                  <input type="number" class="rakaa-input" id="qiyam-input" value="1" min="1" step="2" />
+                  <button class="rakaa-btn rakaa-btn--plus" data-target="qiyam" aria-label="زيادة">+</button>
+                  <span class="rakaa-label">ركعة</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── صلوات اختيارية ── -->
+          <div class="prayer-group">
+            <div class="prayer-group__header">
+              <h3 class="prayer-group__title">صلوات اختيارية</h3>
+            </div>
+            <div class="prayer-list" id="optional-list">
+              <!-- Optional prayer items will be added here dynamically -->
+            </div>
+            <div class="add-optional" id="add-optional-wrap">
+              <button class="btn-add-optional" id="btn-add-optional">
+                <svg class="btn-add-optional__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                إضافة صلاة
+              </button>
+              <div class="optional-menu" id="optional-menu">
+                <button class="optional-menu__item" data-optional="tatawwu">تطوع</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </article>
+
+      <!-- Section: الأذكار -->
+      <article class="card" id="section-athkar">
+        <div class="card__header">
+          <div class="card__icon-wrap card__icon-wrap--athkar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">الأذكار</h2>
+            <p class="card__subtitle">أذكار الصباح والمساء</p>
+          </div>
+          <span class="card__badge" id="athkar-badge">0 / 2</span>
+        </div>
+        <div class="card__body">
+
+          <!-- ── أذكار الصباح ── -->
+          <div class="prayer-group">
+            <button class="adhkar-section-toggle" id="toggle-morning" type="button">
+              <h3 class="prayer-group__title">أذكار الصباح</h3>
+              <span class="adhkar-section-badge" id="morning-progress">0 / 22</span>
+              <svg class="adhkar-section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="adhkar-section-body" id="morning-adhkar-list"></div>
+          </div>
+
+          <!-- ── أذكار المساء ── -->
+          <div class="prayer-group">
+            <button class="adhkar-section-toggle" id="toggle-evening" type="button">
+              <h3 class="prayer-group__title">أذكار المساء</h3>
+              <span class="adhkar-section-badge" id="evening-progress">0 / 18</span>
+              <svg class="adhkar-section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="adhkar-section-body" id="evening-adhkar-list"></div>
+          </div>
+
+          <!-- ── أذكار العدّ ── -->
+          <div class="prayer-group">
+            <h3 class="prayer-group__title">التسبيح والذكر</h3>
+            <div class="counter-grid" id="athkar-counters">
+              <button class="counter-card" data-counter="subhanallah">
+                <span class="counter-card__text">سبحان الله</span>
+                <span class="counter-card__count">0</span>
+              </button>
+              <button class="counter-card" data-counter="alhamdulillah">
+                <span class="counter-card__text">الحمدلله</span>
+                <span class="counter-card__count">0</span>
+              </button>
+              <button class="counter-card" data-counter="la_ilaha">
+                <span class="counter-card__text">لا إله إلا الله</span>
+                <span class="counter-card__count">0</span>
+              </button>
+              <button class="counter-card" data-counter="allahu_akbar">
+                <span class="counter-card__text">الله أكبر</span>
+                <span class="counter-card__count">0</span>
+              </button>
+              <button class="counter-card" data-counter="la_hawla">
+                <span class="counter-card__text">لا حول ولا قوة إلا بالله</span>
+                <span class="counter-card__count">0</span>
+              </button>
+              <button class="counter-card" data-counter="subhan_bihamdi">
+                <span class="counter-card__text">سبحان الله وبحمده، سبحان الله العظيم</span>
+                <span class="counter-card__count">0</span>
+              </button>
+              <button class="counter-card" data-counter="astaghfirullah">
+                <span class="counter-card__text">أستغفرالله وأتوب إليه</span>
+                <span class="counter-card__count">0</span>
+              </button>
+              <button class="counter-card" data-counter="la_ilaha_wahdah">
+                <span class="counter-card__text">لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير</span>
+                <span class="counter-card__count">0</span>
+              </button>
+              <button class="counter-card" data-counter="salat_ibrahimiya">
+                <span class="counter-card__text">الصلاة الابراهيمية</span>
+                <span class="counter-card__count">0</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── أذكار اختيارية ── -->
+          <div class="prayer-group">
+            <div class="prayer-group__header">
+              <h3 class="prayer-group__title">أذكار اختيارية</h3>
+            </div>
+            <div class="prayer-list" id="athkar-optional-list">
+              <!-- Optional athkar items will be added here dynamically -->
+            </div>
+            <div class="add-optional" id="add-athkar-optional-wrap">
+              <button class="btn-add-optional" id="btn-add-athkar-optional">
+                <svg class="btn-add-optional__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                إضافة ذكر
+              </button>
+              <div class="optional-menu" id="athkar-optional-menu">
+                <button class="optional-menu__item" data-athkar-optional="exit_dua">دعاء الخروج من المنزل</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── أدعية خاصة ── -->
+          <div class="prayer-group">
+            <div class="prayer-group__header">
+              <h3 class="prayer-group__title">أدعية خاصة</h3>
+            </div>
+            <div class="prayer-list" id="custom-duaa-list">
+              <!-- Custom duaa items rendered dynamically -->
+            </div>
+            <div class="custom-duaa-add" id="custom-duaa-add-wrap">
+              <div class="custom-duaa-input-row" id="custom-duaa-input-row" style="display:none;">
+                <input type="text" class="custom-duaa-input" id="custom-duaa-input" placeholder="اكتب دعاءك..." />
+                <button class="custom-duaa-confirm" id="custom-duaa-confirm" aria-label="إضافة">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
+              <button class="btn-add-optional" id="btn-add-custom-duaa">
+                <svg class="btn-add-optional__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                إضافة دعاء
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </article>
+
+      <!-- Section: القرآن -->
+      <article class="card" id="section-quran">
+        <div class="card__header">
+          <div class="card__icon-wrap card__icon-wrap--quran">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">القرآن</h2>
+            <p class="card__subtitle">تلاوة وحفظ القرآن الكريم</p>
+          </div>
+          <span class="card__badge" id="quran-badge">0 صفحة</span>
+        </div>
+        <div class="card__body">
+
+          <!-- ── الورد اليومي ── -->
+          <div class="prayer-group">
+            <h3 class="prayer-group__title">الورد اليومي</h3>
+            <div class="quran-pages-wrap">
+              <div class="quran-pages-input-row">
+                <label class="quran-pages-label" for="quran-pages-input">عدد الصفحات</label>
+                <div class="quran-pages-stepper">
+                  <button class="rakaa-btn rakaa-btn--minus" id="quran-pages-minus" aria-label="إنقاص">−</button>
+                  <input type="number" class="quran-pages-input" id="quran-pages-input" value="0" min="0" max="604" step="0.5" />
+                  <button class="rakaa-btn rakaa-btn--plus" id="quran-pages-plus" aria-label="زيادة">+</button>
+                </div>
+              </div>
+              <div class="quran-progress">
+                <div class="quran-progress__bar" id="quran-progress-bar"></div>
+              </div>
+              <div class="quran-progress-label">
+                <span id="quran-progress-text">0 / 604 صفحة</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── قراءات اختيارية ── -->
+          <div class="prayer-group">
+            <div class="prayer-group__header">
+              <h3 class="prayer-group__title">قراءات إضافية</h3>
+            </div>
+            <div class="prayer-list" id="quran-optional-list">
+              <!-- Optional Quran items will be added here dynamically -->
+            </div>
+            <div class="add-optional" id="add-quran-optional-wrap">
+              <button class="btn-add-optional" id="btn-add-quran-optional">
+                <svg class="btn-add-optional__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                إضافة عنصر
+              </button>
+              <div class="optional-menu" id="quran-optional-menu">
+                <button class="optional-menu__item" data-quran-optional="baqara">سورة البقرة</button>
+                <button class="optional-menu__item" data-quran-optional="imran">سورة آل عمران</button>
+                <button class="optional-menu__item" data-quran-optional="new_hifz">الحفظ الجديد</button>
+                <button class="optional-menu__item" data-quran-optional="review">مراجعة المحفوظ</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </article>
+
+      <!-- Section: الصيام -->
+      <article class="card" id="section-fasting">
+        <div class="card__header">
+          <div class="card__icon-wrap card__icon-wrap--fasting">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">الصيام</h2>
+            <p class="card__subtitle">متابعة الصيام</p>
+          </div>
+        </div>
+        <div class="card__body">
+          <div class="prayer-group">
+            <div class="prayer-list" id="fasting-list">
+              <label class="prayer-item" data-fasting="today">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">صمت اليوم</span>
+              </label>
+              <label class="prayer-item" data-fasting="dawud">
+                <input type="checkbox" class="prayer-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">صمت أمس (صيام داود)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Stats Tab -->
+    <section class="tab-panel" id="panel-stats" role="tabpanel">
+
+      <!-- Stat Card: الصلاة -->
+      <article class="card stat-card" id="stat-salah">
+        <div class="card__header">
+          <div class="card__icon-wrap card__icon-wrap--salah">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">متابعة الصلاة</h2>
+          </div>
+        </div>
+        <div class="card__body">
+          <ul class="stat-list" id="stat-salah-list"></ul>
+        </div>
+      </article>
+
+      <!-- Stat Card: الأذكار -->
+      <article class="card stat-card" id="stat-athkar">
+        <div class="card__header">
+          <div class="card__icon-wrap card__icon-wrap--athkar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">متابعة الأذكار</h2>
+          </div>
+        </div>
+        <div class="card__body">
+          <ul class="stat-list" id="stat-athkar-list"></ul>
+        </div>
+      </article>
+
+      <!-- Stat Card: القرآن -->
+      <article class="card stat-card" id="stat-quran">
+        <div class="card__header">
+          <div class="card__icon-wrap card__icon-wrap--quran">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">متابعة القرآن</h2>
+          </div>
+        </div>
+        <div class="card__body">
+          <ul class="stat-list" id="stat-quran-list"></ul>
+        </div>
+      </article>
+
+      <!-- Stat Card: الصيام -->
+      <article class="card stat-card" id="stat-fasting">
+        <div class="card__header">
+          <div class="card__icon-wrap card__icon-wrap--fasting">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">متابعة الصيام</h2>
+          </div>
+        </div>
+        <div class="card__body">
+          <ul class="stat-list" id="stat-fasting-list"></ul>
+        </div>
+      </article>
+
+    </section>
+
+  </main>
+
+  <!-- ─── Footer ─── -->
+  <footer class="footer">
+    <p class="footer__text">لا تنسوني من دعاءكم 🤍</p>
+  </footer>
+
+  <!-- ─── New Day Modal ─── -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal-new-day" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="modal-title">ملخص اليوم</h2>
+      </div>
+      <div class="modal__body">
+        <!-- Summary lists first -->
+        <div class="modal-summary" id="modal-summary"></div>
+
+        <!-- Score result -->
+        <div class="modal-result" id="modal-result">
+          <h3 class="modal-result__label">النتيجة النهائية:</h3>
+          <div class="modal-score">
+            <svg class="modal-score__svg" viewBox="0 0 120 120">
+              <circle class="score-gauge__track" cx="60" cy="60" r="52" />
+              <circle class="score-gauge__fill" id="modal-gauge-fill" cx="60" cy="60" r="52" />
+            </svg>
+            <div class="score-gauge__value">
+              <span class="score-gauge__number" id="modal-score-number">0</span>
+              <span class="score-gauge__label">/ 100</span>
+            </div>
+          </div>
+          <p class="modal-score__msg" id="modal-score-msg"></p>
+        </div>
+
+        <!-- Closing message -->
+        <div class="modal__farewell">
+          <p>جزاك الله خيرًا</p>
+          <p>شد حيلك بكرا! 💪</p>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" id="modal-cancel">إلغاء</button>
+        <button class="btn btn--primary" id="modal-confirm">يوم جديد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Welcome Popup (first-time only) -->
+  <div class="welcome-overlay" id="welcome-overlay">
+    <div class="welcome-popup">
+      <h2 class="welcome-popup__title">مرحبًا بك 🌿</h2>
+      <p class="welcome-popup__text">نسأل الله أن يجعل هذا العمل نافعًا لك،<br>وأن يعينك على الطاعة والذكر وقراءة القرآن.</p>
+      <div class="welcome-popup__points">
+        <p>١. لا تنسَ الدعاء لمَن عمل على هذا المشروع.</p>
+        <p>٢. يوجد نهاية كل يوم تقييم، ولا نقصد هنا أننا نقيّم الناس، أو نُزكّيهم، وإنما هو لدواعي التحفيز ولا غير.</p>
+      </div>
+      <div class="welcome-popup__gender" id="welcome-gender">
+        <p class="welcome-popup__gender-label">اختر نوع المستخدم:</p>
+        <div class="welcome-popup__gender-options">
+          <label class="gender-option">
+            <input type="radio" name="welcome-gender" value="male" class="gender-option__radio" />
+            <span class="gender-option__dot"></span>
+            <span class="gender-option__text">ذكر</span>
+          </label>
+          <label class="gender-option">
+            <input type="radio" name="welcome-gender" value="female" class="gender-option__radio" />
+            <span class="gender-option__dot"></span>
+            <span class="gender-option__text">أنثى</span>
+          </label>
+        </div>
+      </div>
+      <p class="welcome-popup__closing">نسأل الله أن يتقبّل منا ومنكم،<br>وأن يجعلنا من الذاكرين الشاكرين.</p>
+      <button class="btn btn--primary welcome-popup__btn" id="welcome-close" disabled>ابدأ الآن</button>
+    </div>
+  </div>
+
+  <script src="adhkar-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
