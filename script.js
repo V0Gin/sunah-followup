@@ -38,6 +38,26 @@
   const THEME_KEY  = 'suna-theme';
   const DATA_KEY   = 'suna-data';
   const TAB_KEY    = 'suna-active-tab';
+  const GENDER_KEY = 'user_gender';
+
+  /* ─── Gender Helpers ─── */
+  function getGender() {
+    return localStorage.getItem(GENDER_KEY) || 'male';
+  }
+
+  function setGender(g) {
+    localStorage.setItem(GENDER_KEY, g);
+    document.documentElement.setAttribute('data-gender', g);
+    applyGenderUI();
+  }
+
+  /** Return male or female text based on stored gender */
+  function g(male, female) {
+    return getGender() === 'female' ? female : male;
+  }
+
+  // Apply data-gender attribute on load
+  document.documentElement.setAttribute('data-gender', getGender());
 
   const FARD_PRAYERS = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
@@ -139,6 +159,7 @@
       fasting: { today: false, dawud: false },
       ramadanFasting: { fasted: false, excused: false, noExcuse: false },
       ramadanTaraweeh: false,
+      excuse: false,
     };
   }
 
@@ -165,6 +186,7 @@
     if (!day.fasting) day.fasting = { today: false, dawud: false };
     if (!day.ramadanFasting) day.ramadanFasting = { fasted: false, excused: false, noExcuse: false };
     if (day.ramadanTaraweeh === undefined) day.ramadanTaraweeh = false;
+    if (day.excuse === undefined) day.excuse = false;
     // Normalize nafl structure (support legacy numeric values)
     if (!day.nafl) {
       day.nafl = {
@@ -317,8 +339,28 @@
     fardBadge.textContent = count + ' / 5';
   }
 
+  /** Apply excuse state: mark all fard complete, disable checkboxes */
+  function applyExcuseState(excused) {
+    const fardItems = fardList.querySelectorAll('.prayer-item[data-prayer]');
+    fardItems.forEach(item => {
+      const key = item.dataset.prayer;
+      const cb  = item.querySelector('.prayer-check');
+      if (excused) {
+        today.fard[key] = true;
+        cb.checked = true;
+        cb.disabled = true;
+        item.classList.add('prayer-item--checked');
+        item.style.pointerEvents = 'none';
+      } else {
+        cb.disabled = false;
+        item.style.pointerEvents = '';
+      }
+    });
+    updateFardBadge();
+  }
+
   function initFard() {
-    const items = fardList.querySelectorAll('.prayer-item');
+    const items = fardList.querySelectorAll('.prayer-item[data-prayer]');
     items.forEach(item => {
       const key = item.dataset.prayer;
       const cb  = item.querySelector('.prayer-check');
@@ -335,6 +377,69 @@
       });
     });
     updateFardBadge();
+
+    // ── Excuse (عذر شرعي) — female only ──
+    const excuseItem = document.getElementById('excuse-item');
+    const excuseCheck = document.getElementById('excuse-check');
+    if (excuseItem && excuseCheck) {
+      if (getGender() === 'female') {
+        excuseItem.style.display = '';
+        excuseCheck.checked = !!today.excuse;
+        excuseItem.classList.toggle('prayer-item--checked', excuseCheck.checked);
+        if (today.excuse) applyExcuseState(true);
+
+        excuseCheck.addEventListener('change', () => {
+          today.excuse = excuseCheck.checked;
+          excuseItem.classList.toggle('prayer-item--checked', excuseCheck.checked);
+          if (excuseCheck.checked) {
+            applyExcuseState(true);
+          } else {
+            // Restore: uncheck all fard, re-enable
+            FARD_PRAYERS.forEach(p => { today.fard[p] = false; });
+            applyExcuseState(false);
+            const fardItems2 = fardList.querySelectorAll('.prayer-item[data-prayer]');
+            fardItems2.forEach(item => {
+              const cb = item.querySelector('.prayer-check');
+              cb.checked = false;
+              item.classList.remove('prayer-item--checked');
+            });
+            updateFardBadge();
+          }
+          saveToday(today);
+        });
+      } else {
+        excuseItem.style.display = 'none';
+      }
+    }
+  }
+
+  /** Re-apply gender-dependent UI after gender change */
+  function applyGenderUI() {
+    // Excuse visibility
+    const excuseItem = document.getElementById('excuse-item');
+    if (excuseItem) {
+      if (getGender() === 'female') {
+        excuseItem.style.display = '';
+      } else {
+        // Hide excuse and uncheck if switching to male
+        excuseItem.style.display = 'none';
+        const excuseCheck = document.getElementById('excuse-check');
+        if (excuseCheck && excuseCheck.checked) {
+          excuseCheck.checked = false;
+          today.excuse = false;
+          FARD_PRAYERS.forEach(p => { today.fard[p] = false; });
+          applyExcuseState(false);
+          const fardItems = fardList.querySelectorAll('.prayer-item[data-prayer]');
+          fardItems.forEach(item => {
+            const cb = item.querySelector('.prayer-check');
+            cb.checked = false;
+            item.classList.remove('prayer-item--checked');
+          });
+          updateFardBadge();
+          saveToday(today);
+        }
+      }
+    }
   }
 
   /* ═══════════════════════════════════════
@@ -1446,6 +1551,11 @@
     const list = document.getElementById('stat-salah-list');
     let html = '';
 
+    // Excuse status
+    if (today.excuse) {
+      html += statItem('info', 'عذر شرعي — الصلوات المفروضة معذورة');
+    }
+
     // Fard ratio
     const fardDone = FARD_PRAYERS.filter(p => today.fard[p]).length;
     html += statItem('info', 'الصلوات المفروضة', ratioHtml(fardDone, 5));
@@ -1458,17 +1568,17 @@
     // Duha
     const duhaState = today.nafl.duha || { done: false, rakaa: 2 };
     if (duhaState.done) {
-      html += statItem('done', 'قمتَ بأداء صلاة الضحى بـ ' + duhaState.rakaa + ' ركعة');
+      html += statItem('done', g('قمتَ بأداء صلاة الضحى بـ ', 'قمتِ بأداء صلاة الضحى بـ ') + duhaState.rakaa + ' ركعة');
     } else {
-      html += statItem('miss', 'لم تقم بأداء صلاة الضحى');
+      html += statItem('miss', g('لم تقم بأداء صلاة الضحى', 'لم تقومي بأداء صلاة الضحى'));
     }
 
     // Qiyam
     const qiyamState = today.nafl.qiyam || { done: false, rakaa: 1 };
     if (qiyamState.done) {
-      html += statItem('done', 'قمتَ بأداء قيام الليل بـ ' + qiyamState.rakaa + ' ركعة');
+      html += statItem('done', g('قمتَ بأداء قيام الليل بـ ', 'قمتِ بأداء قيام الليل بـ ') + qiyamState.rakaa + ' ركعة');
     } else {
-      html += statItem('miss', 'لم تقم بأداء قيام الليل');
+      html += statItem('miss', g('لم تقم بأداء قيام الليل', 'لم تقومي بأداء قيام الليل'));
     }
 
     // Optional prayers (only if added)
@@ -1478,16 +1588,16 @@
       if (!def) return;
       if (key === 'taraweeh') {
         if (item.checked) {
-          html += statItem('done', 'قمتَ بأداء صلاة التراويح');
+          html += statItem('done', g('قمتَ بأداء صلاة التراويح', 'قمتِ بأداء صلاة التراويح'));
         } else {
-          html += statItem('miss', 'لم تقم بأداء صلاة التراويح');
+          html += statItem('miss', g('لم تقم بأداء صلاة التراويح', 'لم تقومي بأداء صلاة التراويح'));
         }
       } else {
         const rakaa = item.rakaa || 0;
         if (item.checked || rakaa > 0) {
-          html += statItem('done', 'قمتَ بأداء صلاة ' + def.name + (rakaa > 0 ? ' ' + rakaa + ' ركعة' : ''));
+          html += statItem('done', g('قمتَ بأداء صلاة ', 'قمتِ بأداء صلاة ') + def.name + (rakaa > 0 ? ' ' + rakaa + ' ركعة' : ''));
         } else {
-          html += statItem('miss', 'لم تقم بأداء صلاة ' + def.name);
+          html += statItem('miss', g('لم تقم بأداء صلاة ', 'لم تقومي بأداء صلاة ') + def.name);
         }
       }
     });
@@ -1495,8 +1605,8 @@
     // Ramadan Taraweeh (permanent during Ramadan)
     if (isRamadan) {
       html += today.ramadanTaraweeh
-        ? statItem('done', 'قمتَ بأداء صلاة التراويح')
-        : statItem('miss', 'لم تقم بأداء صلاة التراويح');
+        ? statItem('done', g('قمتَ بأداء صلاة التراويح', 'قمتِ بأداء صلاة التراويح'))
+        : statItem('miss', g('لم تقم بأداء صلاة التراويح', 'لم تقومي بأداء صلاة التراويح'));
     }
 
     list.innerHTML = html;
@@ -1511,22 +1621,22 @@
     const mTotal = MORNING_ADHKAR.length;
     const mDone = MORNING_ADHKAR.filter(d => (today.athkarMorningCounts[d.id] || 0) >= d.count).length;
     if (mDone === 0) {
-      html += statItem('miss', 'لم تقرأ أذكار الصباح');
+      html += statItem('miss', g('لم تقرأ أذكار الصباح', 'لم تقرئي أذكار الصباح'));
     } else if (mDone < mTotal) {
-      html += statItem('info', 'قمت بقراءة بعض أذكار الصباح', mDone + ' / ' + mTotal);
+      html += statItem('info', g('قمت بقراءة بعض أذكار الصباح', 'قمتِ بقراءة بعض أذكار الصباح'), mDone + ' / ' + mTotal);
     } else {
-      html += statItem('done', 'أكملت أذكار الصباح');
+      html += statItem('done', g('أكملت أذكار الصباح', 'أكملتِ أذكار الصباح'));
     }
 
     // Evening athkar
     const eTotal = EVENING_ADHKAR.length;
     const eDone = EVENING_ADHKAR.filter(d => (today.athkarEveningCounts[d.id] || 0) >= d.count).length;
     if (eDone === 0) {
-      html += statItem('miss', 'لم تقرأ أذكار المساء');
+      html += statItem('miss', g('لم تقرأ أذكار المساء', 'لم تقرئي أذكار المساء'));
     } else if (eDone < eTotal) {
-      html += statItem('info', 'قمت بقراءة بعض أذكار المساء', eDone + ' / ' + eTotal);
+      html += statItem('info', g('قمت بقراءة بعض أذكار المساء', 'قمتِ بقراءة بعض أذكار المساء'), eDone + ' / ' + eTotal);
     } else {
-      html += statItem('done', 'أكملت أذكار المساء');
+      html += statItem('done', g('أكملت أذكار المساء', 'أكملتِ أذكار المساء'));
     }
 
     // Counters (only show non-zero ones)
@@ -1550,9 +1660,9 @@
     // Daily pages
     const pages = today.quranPages || 0;
     if (pages > 0) {
-      html += statItem('done', 'قرأت الورد اليومي ' + pages + ' من ' + QURAN_TOTAL_PAGES + ' صفحة');
+      html += statItem('done', g('قرأتَ الورد اليومي ', 'قرأتِ الورد اليومي ') + pages + ' من ' + QURAN_TOTAL_PAGES + ' صفحة');
     } else {
-      html += statItem('miss', 'لم تقرأ الورد اليومي');
+      html += statItem('miss', g('لم تقرأ الورد اليومي', 'لم تقرئي الورد اليومي'));
     }
 
     // Optional Quran items (only if enabled — INCLUDED in stats)
@@ -1561,9 +1671,9 @@
       const item = today.quranOptional[key];
       if (!def) return;
       if (item.checked) {
-        html += statItem('done', 'قرأت ' + def.name);
+        html += statItem('done', g('قرأتَ ', 'قرأتِ ') + def.name);
       } else {
-        html += statItem('miss', 'لم تقرأ ' + def.name);
+        html += statItem('miss', g('لم تقرأ ', 'لم تقرئي ') + def.name);
       }
     });
 
@@ -1684,11 +1794,11 @@
     const duhaState = today.nafl.duha || { done: false, rakaa: 2 };
     salahItems += duhaState.done
       ? statItem('done', 'صلاة الضحى بـ ' + duhaState.rakaa + ' ركعة')
-      : statItem('miss', 'لم تصل الضحى');
+      : statItem('miss', g('لم تصل الضحى', 'لم تصلي الضحى'));
     const qiyamState = today.nafl.qiyam || { done: false, rakaa: 1 };
     salahItems += qiyamState.done
       ? statItem('done', 'قيام الليل بـ ' + qiyamState.rakaa + ' ركعة')
-      : statItem('miss', 'لم تصل القيام');
+      : statItem('miss', g('لم تصل القيام', 'لم تصلي القيام'));
     Object.keys(today.optional).forEach(key => {
       const def = OPTIONAL_DEFS[key]; if (!def) return;
       const opt = today.optional[key];
@@ -1707,7 +1817,7 @@
     if (isRamadan) {
       salahItems += today.ramadanTaraweeh
         ? statItem('done', 'صلاة التراويح')
-        : statItem('miss', 'لم تصل التراويح');
+        : statItem('miss', g('لم تصل التراويح', 'لم تصلي التراويح'));
     }
     html += `<div class="modal-summary__section"><h4 class="modal-summary__title">متابعة الصلاة</h4><ul class="modal-summary__list">${salahItems}</ul></div>`;
 
@@ -2079,13 +2189,42 @@
     const closeBtn = document.getElementById('welcome-close');
     if (!overlay || !closeBtn) return;
 
+    // Gender radios — enable button only after selection
+    const genderRadios = overlay.querySelectorAll('.gender-option__radio');
+    genderRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        closeBtn.disabled = false;
+      });
+    });
+
     // Show after a brief delay for smoother entrance
     requestAnimationFrame(() => overlay.classList.add('welcome-overlay--open'));
 
     closeBtn.addEventListener('click', () => {
+      // Save gender selection
+      const selected = overlay.querySelector('.gender-option__radio:checked');
+      if (selected) {
+        setGender(selected.value);
+      }
       overlay.classList.remove('welcome-overlay--open');
       localStorage.setItem('welcome_seen', 'true');
+      // Reload to apply gender UI
+      setTimeout(() => location.reload(), 300);
     });
   })();
+
+  /* ═══════════════════════════════════════
+     Gender Toggle Button
+     ═══════════════════════════════════════ */
+  const btnGender = document.getElementById('btn-gender');
+  if (btnGender) {
+    btnGender.addEventListener('click', () => {
+      const current = getGender();
+      const newGender = current === 'male' ? 'female' : 'male';
+      setGender(newGender);
+      // Reload to re-initialize all gender-dependent logic
+      location.reload();
+    });
+  }
 
 })();

@@ -24,6 +24,21 @@
           </svg>
           يوم جديد
         </button>
+        <button class="btn btn--icon" id="btn-gender" aria-label="تبديل الجنس">
+          <!-- Male icon -->
+          <svg class="icon icon--male" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="14" r="5"/>
+            <line x1="19" y1="5" x2="13.6" y2="10.4"/>
+            <line x1="19" y1="5" x2="15" y2="5"/>
+            <line x1="19" y1="5" x2="19" y2="9"/>
+          </svg>
+          <!-- Female icon -->
+          <svg class="icon icon--female" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="9" r="5"/>
+            <line x1="12" y1="14" x2="12" y2="22"/>
+            <line x1="9" y1="18" x2="15" y2="18"/>
+          </svg>
+        </button>
         <button class="btn btn--icon" id="btn-theme" aria-label="تبديل الوضع">
           <!-- Sun icon (shown in dark mode) -->
           <svg class="icon icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -166,6 +181,11 @@
           <div class="prayer-group">
             <h3 class="prayer-group__title">الفرائض</h3>
             <div class="prayer-list" id="fard-list">
+              <label class="prayer-item prayer-item--excuse" id="excuse-item" style="display:none;">
+                <input type="checkbox" class="prayer-check" id="excuse-check" />
+                <span class="prayer-check-box"></span>
+                <span class="prayer-name">عذر شرعي</span>
+              </label>
               <label class="prayer-item" data-prayer="fajr">
                 <input type="checkbox" class="prayer-check" />
                 <span class="prayer-check-box"></span>
@@ -647,8 +667,23 @@
         <p>١. لا تنسَ الدعاء لمَن عمل على هذا المشروع.</p>
         <p>٢. يوجد نهاية كل يوم تقييم، ولا نقصد هنا أننا نقيّم الناس، أو نُزكّيهم، وإنما هو لدواعي التحفيز ولا غير.</p>
       </div>
+      <div class="welcome-popup__gender" id="welcome-gender">
+        <p class="welcome-popup__gender-label">اختر نوع المستخدم:</p>
+        <div class="welcome-popup__gender-options">
+          <label class="gender-option">
+            <input type="radio" name="welcome-gender" value="male" class="gender-option__radio" />
+            <span class="gender-option__dot"></span>
+            <span class="gender-option__text">ذكر</span>
+          </label>
+          <label class="gender-option">
+            <input type="radio" name="welcome-gender" value="female" class="gender-option__radio" />
+            <span class="gender-option__dot"></span>
+            <span class="gender-option__text">أنثى</span>
+          </label>
+        </div>
+      </div>
       <p class="welcome-popup__closing">نسأل الله أن يتقبّل منا ومنكم،<br>وأن يجعلنا من الذاكرين الشاكرين.</p>
-      <button class="btn btn--primary welcome-popup__btn" id="welcome-close">ابدأ الآن</button>
+      <button class="btn btn--primary welcome-popup__btn" id="welcome-close" disabled>ابدأ الآن</button>
     </div>
   </div>
 

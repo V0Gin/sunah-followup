@@ -2510,3 +2510,110 @@ body {
   padding: var(--sp-3);
 }
 
+.welcome-popup__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+/* ─── Gender Selection in Welcome ─── */
+.welcome-popup__gender {
+  margin-bottom: var(--sp-4);
+}
+
+.welcome-popup__gender-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-3);
+}
+
+.welcome-popup__gender-options {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-4);
+}
+
+.gender-option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-strong);
+  transition: all var(--dur) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  min-width: 100px;
+  justify-content: center;
+}
+
+.gender-option:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.gender-option__radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.gender-option__dot {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  transition: all var(--dur) var(--ease-spring);
+  position: relative;
+}
+
+.gender-option__dot::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: scale(0);
+  transition: transform 0.25s var(--ease-spring);
+}
+
+.gender-option__radio:checked ~ .gender-option__dot {
+  border-color: var(--accent);
+}
+
+.gender-option__radio:checked ~ .gender-option__dot::after {
+  transform: scale(1);
+}
+
+.gender-option:has(.gender-option__radio:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.gender-option__text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ─── Gender Toggle Icon Visibility ─── */
+[data-gender="male"] .icon--female   { display: none; }
+[data-gender="female"] .icon--male   { display: none; }
+
+/* ─── Excuse Item ─── */
+.prayer-item--excuse {
+  border-right-color: var(--athkar-gradient);
+  background: linear-gradient(to left, var(--accent-soft), var(--bg-elevated));
+}
+
+.prayer-item--excuse .prayer-name {
+  color: var(--accent);
+  font-weight: 700;
+}
+
